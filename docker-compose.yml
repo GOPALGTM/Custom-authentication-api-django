@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gopalgtm001/django-auth:latest
+    command: bash -c "python3 manage.py makemigrations 
+            && python3 manage.py migrate 
+            && python3 manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_USER=django_user
+      - DB_PASSWORD=django_pass
+      - DB_NAME=django_db
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    volumes:
+      - db_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=django_user
+      - POSTGRES_PASSWORD=django_pass
+      - POSTGRES_DB=django_db
+
+volumes:
+  db_data:
