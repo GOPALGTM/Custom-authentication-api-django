@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django
+  namespace: devtool
+  labels:
+    app: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-container
+  template:
+    metadata:
+      labels:
+        app: django-container
+    spec:
+      containers:
+      - name: django-auth-app
+        image: gopalgtm001/django-auth-api
+        ports:
+        - containerPort: 8000
+        command: ["/bin/bash", "-c"]
+        args:
+          - "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+        env:
+        - name: POSTGRES_HOST
+          value: "postgres-service"
+
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: user
+
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: password
+
+        - name: POSTGRES_DB
+          value: django_db

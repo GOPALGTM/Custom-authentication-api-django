@@ -1,0 +1,51 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mainlb
+  namespace: devtool
+  annotations:
+    alb.ingress.kubernetes.io/group.name: demo-lb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    #Uncommnt below to enable https, generate certificate from AWS ACM
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:120717539064:certificate/befc6ed9-44ae-41a1-ba96-0d562a369f64
+spec:
+  ingressClassName: alb
+  rules:
+    - host: app.devtool.site
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 8000
+
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: minimal-ingress
+#   annotations:
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+#     kubernetes.io/ingress.class: "nginx"
+# spec:
+#   tls:
+#   - hosts:
+#       - kubernates.devtool.site
+#     secretName: tls-secret
+#   rules:
+#   - host: "kubernates.devtool.site"
+#     http:
+#       paths:
+#       - pathType: Prefix
+#         path: "/"
+#         backend:
+#           service:
+#             name: my-service
+#             port:
+#               number: 8000
